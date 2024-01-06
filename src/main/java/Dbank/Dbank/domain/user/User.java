@@ -1,6 +1,7 @@
 package Dbank.Dbank.domain.user;
 
 
+import Dbank.Dbank.dtos.UserDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -29,4 +30,13 @@ public class User {
     private BigDecimal balance;
     @Enumerated(EnumType.STRING)
     private UserType userType;
+
+    public User(UserDTO dto){
+        this.firstName = dto.firstName();
+        this.lastName = dto.lastName();
+        this.userType = dto.userType();
+        this.password = dto.password();
+        this.document = dto.document();
+        this.email = dto.email();
+    }
 }
