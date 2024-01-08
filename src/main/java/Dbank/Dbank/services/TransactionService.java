@@ -5,14 +5,9 @@ import Dbank.Dbank.domain.user.User;
 import Dbank.Dbank.dtos.TransactionDTO;
 import Dbank.Dbank.repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Service
 public class TransactionService {
@@ -24,8 +19,7 @@ public class TransactionService {
     private TransactionRepository repository;
 
     @Autowired
-    private RestTemplate restTemplate;
-
+    private AuthorizationService authorizationService;
 
     @Autowired
     private NotificationService notificationService;
@@ -34,10 +28,10 @@ public class TransactionService {
         User sender = this.userService.findUserById(transaction.senderId());
         User receiver = this.userService.findUserById(transaction.receiverId());
 
-        userService.validateTransaction(sender,transaction.value());
+        userService.validateTransaction(sender, transaction.value());
 
-        Boolean isAuthorized = this.authorizeTransaction(sender,transaction.value());
-        if (!isAuthorized){
+        Boolean isAuthorized = this.authorizationService.authorizeTransaction(sender, transaction.value());
+        if (!isAuthorized) {
             throw new Exception("transaction unauthorized");
         }
 
@@ -61,12 +55,4 @@ public class TransactionService {
         return transaction1;
     }
 
-    private boolean authorizeTransaction(User sender, BigDecimal value){
-       ResponseEntity<Map> authorizationResponse = restTemplate.getForEntity("https://run.mocky.io/v3/5794d450-d2e2-4412-8131-73d0293ac1cc", Map.class);
-
-       if (authorizationResponse.getStatusCode() == HttpStatus.OK
-               && authorizationResponse.getBody().get("message") == "Autorizado"){
-           return true;
-       }else return false;
-    }
 }
