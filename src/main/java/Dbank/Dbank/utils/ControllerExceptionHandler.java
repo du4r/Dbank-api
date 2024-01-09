@@ -1,6 +1,7 @@
 package Dbank.Dbank.utils;
 
 import Dbank.Dbank.dtos.ExceptionDTO;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,14 +16,14 @@ public class ControllerExceptionHandler {
         return ResponseEntity.badRequest().body(exceptionDTO);
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity threat404(DataIntegrityViolationException exception){
         return ResponseEntity.notFound().build();
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity threatGeneralException(DataIntegrityViolationException exception){
-        ExceptionDTO exceptionDTO = new ExceptionDTO(exception.getMessage(), "400");
+    public ResponseEntity threatGeneralException(Exception exception){
+        ExceptionDTO exceptionDTO = new ExceptionDTO(exception.getMessage(), "500");
         return ResponseEntity.internalServerError().body(exceptionDTO);
     }
 }

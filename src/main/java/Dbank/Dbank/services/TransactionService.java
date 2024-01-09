@@ -51,7 +51,6 @@ public class TransactionService {
         this.notificationService.sendNotification(sender, "transaction sucessfully");
         this.notificationService.sendNotification(receiver, "transaction sucessfully");
 
-
         return transaction1;
     }
 
