@@ -4,6 +4,7 @@ import Dbank.Dbank.domain.user.User;
 import Dbank.Dbank.domain.user.UserType;
 import Dbank.Dbank.dtos.TransactionDTO;
 import Dbank.Dbank.repositories.TransactionRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,13 +68,26 @@ class TransactionServiceTest {
         receiver.setBalance(new BigDecimal(130));
         verify(userService,times(1)).saveUser(receiver);
 
-        verify(notificationService,times(1)).sendNotification(sender,"");
-        verify(notificationService,times(1)).sendNotification(receiver,"");
+        verify(notificationService,times(1)).sendNotification(sender,"Transaçao realizada com sucesso!");
+        verify(notificationService,times(1)).sendNotification(receiver,"Transaçao recebida");
     }
 
     @Test
     @DisplayName("should throw exception when transaction is not allowed")
-    void createTransactionUC2() {
+    void createTransactionUC2() throws Exception {
+        User sender = new User(1L, "cesar", "menotti", "99999999901", "caesar@gmail.com", "12345", new BigDecimal(10), UserType.COMMON);
+        User receiver = new User(2L, "Joao", "gomes", "99999999902", "joao@gomes.com", "12345", new BigDecimal(10), UserType.COMMON);
 
+        when(userService.findUserById(1L)).thenReturn(sender);
+        when(userService.findUserById(2L)).thenReturn(receiver);
+
+        when(authorizationService.authorizeTransaction(any(), any())).thenReturn(false);
+
+        Exception thrown = Assertions.assertThrows(Exception.class, () -> {
+            TransactionDTO request = new TransactionDTO(new BigDecimal(100), 1L, 2L);
+            transactionService.createTransaction(request);
+        });
+
+        Assertions.assertEquals("Transação não autorizada", thrown.getMessage());
     }
 }
